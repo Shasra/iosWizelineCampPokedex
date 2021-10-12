@@ -7,10 +7,11 @@
 
 import UIKit
 
-class ListViewController: UICollectionViewController, UISearchBarDelegate {
+class ListViewController: UICollectionViewController, UISearchBarDelegate, UINavigationBarDelegate {
 
     private var pokemons: [Pokemon] = []
     private var resultPokemons: [Pokemon] = []
+    private var indexPokemon: Int = 0
 
     // TODO: Use UserDefaults to pre-load the latest search at start
 
@@ -48,6 +49,7 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate {
         navbar.tintColor = .black
         navbar.titleTextAttributes = [.foregroundColor: UIColor.black]
         navbar.prefersLargeTitles = true
+        navbar.delegate = self
 
         // Set up the searchController parameters.
         navigationItem.searchController = searchController
@@ -63,6 +65,7 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate {
         collectionView.backgroundColor = .white
         collectionView.alwaysBounceVertical = true
         collectionView.indicatorStyle = .white
+        collectionView.delegate = self
 
         // Set up the refresh control as part of the collection view when it's pulled to refresh.
         let refreshControl = UIRefreshControl()
@@ -86,8 +89,7 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate {
         collectionView.reloadData()
     }
 
-    // TODO: Implement the SearchBar
-    
+    // MARK: SearchBar
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         self.filterContentForSearchText(searchText)
@@ -106,10 +108,24 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate {
         cell.pokemon = resultPokemons[indexPath.item]
         return cell
     }
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.indexPokemon = indexPath.row
+        performSegue(withIdentifier: "goDetailViewControllerSegue", sender: indexPath)
+        // do stuff with image, or with other data that you need
+    }
 
     // MARK: - Navigation
 
     // TODO: Handle navigation to detail view controller
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goDetailViewControllerSegue"  {
+            if let navController = segue.destination as? DetailViewController {
+                guard let indexPath = sender as? IndexPath  else { return }
+                    navController.pokemon = self.resultPokemons[indexPath.row]
+            }
+        }
+    }
 
     // MARK: - UI Hooks
 
