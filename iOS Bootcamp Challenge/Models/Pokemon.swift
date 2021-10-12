@@ -64,8 +64,8 @@ struct Pokemon: Decodable, Equatable {
 
         // TODO: Decode list of types & abilities
 
-        self.types = []
-        self.abilities = []
+        self.types = try? container.decode([String].self, forKey: .types)
+        self.abilities = try? container.decode([String].self, forKey: .abilities)
 
         self.weight = try container.decode(Float.self, forKey: .weight)
         self.baseExperience = try container.decode(Int.self, forKey: .baseExperience)
