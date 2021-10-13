@@ -27,6 +27,48 @@ enum PokemonType: String, Decodable, CaseIterable, Identifiable {
 
 }
 
+struct SlotType: Decodable, Equatable {
+    let slot: Int
+    let type: TypeDescription
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.type = try container.decode(TypeDescription.self, forKey: .type)
+        self.slot = try container.decode(Int.self, forKey: .slot)
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case slot
+        case type
+    }
+}
+
+struct TypeDescription: Decodable, Equatable {
+    let name: String
+    let url: String
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case url
+    }
+}
+
+struct Abilities: Decodable, Equatable {
+    let ability : TypeDescription
+    let slot: Int
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.ability = try container.decode(TypeDescription.self, forKey: .ability)
+        self.slot = try container.decode(Int.self, forKey: .slot)
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case ability
+        case slot
+    }
+    
+}
 struct Pokemon: Decodable, Equatable {
 
     let id: Int
@@ -63,9 +105,20 @@ struct Pokemon: Decodable, Equatable {
         self.image = try? officialArtWork.decode(String.self, forKey: .frontDefault)
 
         // TODO: Decode list of types & abilities
+        
+        let decodedTypes = try container.decode([SlotType].self, forKey: .types)
+        var types: [String] = []
+        for slotType in decodedTypes {
+           types.append(slotType.type.name)
+        }
+        self.types = types
 
-        self.types = try? container.decode([String].self, forKey: .types)
-        self.abilities = try? container.decode([String].self, forKey: .abilities)
+        let decodedAbilities = try container.decode([Abilities].self, forKey: .abilities)
+        var abilities: [String] = []
+        for ability in decodedAbilities {
+            abilities.append(ability.ability.name)
+        }
+        self.abilities = abilities
 
         self.weight = try container.decode(Float.self, forKey: .weight)
         self.baseExperience = try container.decode(Int.self, forKey: .baseExperience)

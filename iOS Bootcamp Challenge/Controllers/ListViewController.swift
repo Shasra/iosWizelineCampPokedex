@@ -11,7 +11,6 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate, UINav
 
     private var pokemons: [Pokemon] = []
     private var resultPokemons: [Pokemon] = []
-    private var indexPokemon: Int = 0
 
     // TODO: Use UserDefaults to pre-load the latest search at start
 
@@ -110,9 +109,7 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate, UINav
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        self.indexPokemon = indexPath.row
         performSegue(withIdentifier: "goDetailViewControllerSegue", sender: indexPath)
-        // do stuff with image, or with other data that you need
     }
 
     // MARK: - Navigation

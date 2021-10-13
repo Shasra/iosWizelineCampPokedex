@@ -77,7 +77,7 @@ class DetailViewController: UIViewController {
         // abilities
         if let abilities = pokemon.abilities {
             let title = "Abilities"
-            let description = abilities.joined(separator: "\n")
+            let description = abilities.joined(separator: " / ")
             let item = Item(title: title, description: description)
             items.append(item)
         }
