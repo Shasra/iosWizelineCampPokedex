@@ -11,6 +11,13 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate, UINav
 
     private var pokemons: [Pokemon] = []
     private var resultPokemons: [Pokemon] = []
+    
+    // User Default Key for last search
+    static var userLastSearch: String {
+        return "UserLastSearch"
+    }
+    
+    private var lastPokemonsSearched = UserDefaults.standard.string(forKey: userLastSearch)
 
     // TODO: Use UserDefaults to pre-load the latest search at start
 
@@ -18,6 +25,7 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate, UINav
 
     lazy private var searchController: SearchBar = {
         let searchController = SearchBar("Search a pokemon", delegate: nil)
+        latestSearch = lastPokemonsSearched
         searchController.text = latestSearch
         searchController.searchBar.delegate = self
         searchController.showsCancelButton = !searchController.isSearchBarEmpty
@@ -29,6 +37,24 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate, UINav
     // TODO: Add a loading indicator when the app first launches and has no pokemons
 
     private var shouldShowLoader: Bool = true
+    let activityView = UIActivityIndicatorView(style: .large)
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        self.view.addSubview(activityView)
+        activityView.hidesWhenStopped = true
+        activityView.center = self.view.center
+        activityView.startAnimating()
+        activityView.tintColor = .black
+
+        DispatchQueue.main.async {
+         UIView.animate(withDuration: 1, delay: 1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+             self.collectionView?.reloadData()
+             self.collectionView?.alpha = 1
+             self.activityView.stopAnimating()
+         }, completion: nil)
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -92,6 +118,10 @@ class ListViewController: UICollectionViewController, UISearchBarDelegate, UINav
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         self.filterContentForSearchText(searchText)
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        UserDefaults.standard.set(searchBar.text, forKey: ListViewController.userLastSearch)
     }
     
     // MARK: - UICollectionViewDataSource
